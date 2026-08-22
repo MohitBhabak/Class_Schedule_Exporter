@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Schedule to Google Calendar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Quest Schedule Exporter</h1>
+            <p>Highlight your entire schedule on Quest, copy, and paste it below to generate a Google Calendar (.ics) file.</p>
+        </header>
+
+        <main>
+            <textarea id="schedule-input" placeholder="Paste your schedule here..."></textarea>
+            <button id="generate-btn">Generate Calendar File</button>
+
+            <div id="status-message" class="hidden"></div>
+            
+            <div id="instructions" class="hidden">
+                <h3>How to import into Google Calendar:</h3>
+                <ol>
+                    <li>Open <a href="https://calendar.google.com" target="_blank">Google Calendar</a>.</li>
+                    <li>Click the gear icon (Settings) in the top right.</li>
+                    <li>Select <strong>Settings</strong> > <strong>Import & export</strong>.</li>
+                    <li>Select the downloaded <code>.ics</code> file and choose the calendar you want to add the events to.</li>
+                    <li>Click <strong>Import</strong>.</li>
+                </ol>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
