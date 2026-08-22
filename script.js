@@ -88,6 +88,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const openGCalMainBtn = document.getElementById('open-gcal-main-btn');
+    const openGCalPreviewBtn = document.getElementById('open-gcal-preview-btn');
+    const autoOpenGCalCheck = document.getElementById('auto-open-gcal-check');
+
+    const GCAL_IMPORT_URL = 'https://calendar.google.com/calendar/u/0/r/settings/export';
+
+    function openGoogleCalendar() {
+        window.open(GCAL_IMPORT_URL, '_blank', 'noopener,noreferrer');
+    }
+
+    if (openGCalMainBtn) {
+        openGCalMainBtn.addEventListener('click', () => {
+            const text = scheduleInput.value;
+            if (text && text.trim()) {
+                // If not parsed yet, parse and download first
+                if (!currentIcsContent) {
+                    try {
+                        parsedEvents = parseSchedule(text);
+                        if (parsedEvents.length > 0) {
+                            renderTableView(parsedEvents);
+                            renderGridView(parsedEvents);
+                            currentIcsContent = generateICS(parsedEvents);
+                            downloadICS(currentIcsContent, 'quest_schedule.ics');
+                            previewSection.classList.remove('hidden');
+                            instructions.classList.remove('hidden');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            }
+            openGoogleCalendar();
+        });
+    }
+
+    if (openGCalPreviewBtn) {
+        openGCalPreviewBtn.addEventListener('click', openGoogleCalendar);
+    }
+
     // Generate Calendar File
     if (generateBtn) {
         generateBtn.addEventListener('click', () => {
@@ -119,10 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const uniqueCourses = [...new Set(parsedEvents.map(e => e.courseCode))];
-                showStatus(`✨ Success! Parsed ${uniqueCourses.length} course(s) and ${parsedEvents.length} weekly class session(s). Your .ics file is downloading.`, 'success');
+                showStatus(`✨ Success! Parsed ${uniqueCourses.length} course(s) and ${parsedEvents.length} weekly class session(s). Your .ics file is downloading.`, 'success', true);
                 
                 previewSection.classList.remove('hidden');
                 instructions.classList.remove('hidden');
+
+                // Check auto-open preference
+                if (autoOpenGCalCheck && autoOpenGCalCheck.checked) {
+                    setTimeout(() => {
+                        openGoogleCalendar();
+                    }, 400);
+                }
 
                 // Smooth scroll to preview
                 previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -140,6 +186,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 downloadICS(currentIcsContent, 'quest_schedule.ics');
             }
         });
+    }
+
+    function showStatus(message, type, showGCalLink = false) {
+        statusMessage.innerHTML = '';
+        const contentSpan = document.createElement('span');
+        contentSpan.className = 'status-text-content';
+        contentSpan.textContent = message;
+        statusMessage.appendChild(contentSpan);
+
+        if (showGCalLink) {
+            const link = document.createElement('a');
+            link.href = GCAL_IMPORT_URL;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'status-action-link';
+            link.innerHTML = '🚀 Go to Google Calendar &rarr;';
+            statusMessage.appendChild(link);
+        }
+
+        statusMessage.className = type;
+        statusMessage.classList.remove('hidden');
     }
 
     function renderTableView(events) {

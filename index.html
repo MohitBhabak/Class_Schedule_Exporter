@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <div class="container">
@@ -21,17 +21,17 @@
                 <span>University of Waterloo • Quest Exporter</span>
             </div>
             <h1>Quest Schedule ➔ <span>Google Calendar</span></h1>
-            <p>Easily convert your Waterloo class schedule into a downloadable, recurring <code>.ics</code> calendar file.</p>
+            <p>Convert your Waterloo class schedule into a recurring calendar with instant export to Google Calendar, Apple Calendar, or Outlook.</p>
             
             <div class="steps-row">
                 <div class="step-pill">
                     <span class="step-num">1</span> Copy List View from Quest
                 </div>
                 <div class="step-pill">
-                    <span class="step-num">2</span> Paste below & generate
+                    <span class="step-num">2</span> Paste & Generate
                 </div>
                 <div class="step-pill">
-                    <span class="step-num">3</span> Import into Calendar
+                    <span class="step-num">3</span> Open Google Calendar & Import
                 </div>
             </div>
         </header>
@@ -71,7 +71,6 @@
                         <span class="quest-mockup-badge">Visual Guide</span>
                     </div>
                     <div class="quest-mockup-body">
-                        <!-- Radio Selector -->
                         <div class="quest-radio-bar">
                             <label class="quest-radio-selected">
                                 <input type="radio" checked disabled> <strong>List View</strong> (Select this)
@@ -81,7 +80,7 @@
                             </label>
                         </div>
 
-                        <!-- Sample Course 1 -->
+                        <!-- Course 1 -->
                         <div class="quest-course-block">
                             <div class="quest-course-title quest-selected">CS 135 - Designing Functional Programs</div>
                             <table class="quest-meta-table">
@@ -140,7 +139,7 @@
                             </table>
                         </div>
 
-                        <!-- Sample Course 2 -->
+                        <!-- Course 2 -->
                         <div class="quest-course-block">
                             <div class="quest-course-title quest-selected">MATH 137 - Calculus 1 for Honours Mathematics</div>
                             <table class="quest-meta-table">
@@ -220,9 +219,21 @@
                 <textarea id="schedule-input" placeholder="Highlight your schedule on Quest (Ctrl+A or drag-select), copy it (Ctrl+C), and paste it here..."></textarea>
             </div>
 
-            <button id="generate-btn" class="cta-btn" type="button">
-                <span>⚡ Generate & Download Calendar (.ics)</span>
-            </button>
+            <!-- Action Buttons Group -->
+            <div class="cta-actions-group">
+                <div class="button-row">
+                    <button id="generate-btn" class="cta-btn" type="button">
+                        <span>⚡ Generate & Download (.ics)</span>
+                    </button>
+                    <button id="open-gcal-main-btn" class="google-cta-btn" type="button">
+                        <span>🚀 Open Google Calendar Import</span>
+                    </button>
+                </div>
+                <div class="options-bar">
+                    <input type="checkbox" id="auto-open-gcal-check" checked>
+                    <label for="auto-open-gcal-check">Automatically open Google Calendar Import tab after generating</label>
+                </div>
+            </div>
 
             <div id="status-message" class="hidden"></div>
 
@@ -232,12 +243,15 @@
                     <div class="preview-title">
                         <h2>Parsed Schedule (<span id="event-count">0</span> sessions)</h2>
                     </div>
-                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                         <div class="view-switcher">
                             <button type="button" id="tab-grid-btn" class="tab-btn active">📅 Weekly Grid</button>
                             <button type="button" id="tab-table-btn" class="tab-btn">📋 Table View</button>
                         </div>
-                        <button id="download-again-btn" class="action-btn-sm" type="button">📥 Download .ics</button>
+                        <div class="preview-actions">
+                            <button id="download-again-btn" class="action-btn-sm" type="button">📥 Download .ics</button>
+                            <button id="open-gcal-preview-btn" class="action-btn-sm action-btn-google" type="button">🚀 Open Google Calendar</button>
+                        </div>
                     </div>
                 </div>
 
@@ -274,8 +288,8 @@
             
             <div class="guide-steps">
                 <div class="guide-step-item">
-                    <span class="guide-step-num">GOOGLE CALENDAR</span>
-                    <p>Open <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer">Google Calendar</a>, click <strong>⚙ Settings</strong> &gt; <strong>Import & export</strong> &gt; Select the downloaded <code>.ics</code> file and click <strong>Import</strong>.</p>
+                    <span class="guide-step-num">GOOGLE CALENDAR (DIRECT LINK)</span>
+                    <p>Click <a href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener noreferrer"><strong>Google Calendar Import</strong></a> &gt; Click <em>"Select file from your computer"</em> &gt; Choose <code>quest_schedule.ics</code> &gt; Click <strong>Import</strong>.</p>
                 </div>
                 <div class="guide-step-item">
                     <span class="guide-step-num">APPLE CALENDAR (MAC / IOS)</span>
@@ -295,6 +309,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>
