@@ -246,28 +246,140 @@ header p {
     color: var(--text-main);
 }
 
-.guide-image-container {
-    background: #000000;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.75rem;
-    text-align: center;
+/* Quest Mockup Component */
+.quest-mockup-wrapper {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    color: #1E293B;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    overflow: hidden;
 }
 
-.guide-image-container img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    display: block;
-    margin: 0 auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+.quest-mockup-banner {
+    background: #F1F5F9;
+    border-bottom: 1px solid #CBD5E1;
+    padding: 0.5rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.quest-mockup-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.quest-mockup-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #CBD5E1;
+}
+
+.quest-mockup-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.02em;
+}
+
+.quest-mockup-badge {
+    background: #2563EB;
+    color: #FFFFFF;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.quest-mockup-body {
+    padding: 1rem;
+    max-height: 380px;
+    overflow-y: auto;
+    background: #FAFBFD;
+}
+
+.quest-radio-bar {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 0.85rem;
+    padding: 0.4rem 0.6rem;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.quest-radio-selected {
+    color: #1E3A8A;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.quest-radio-unselected {
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.quest-course-block {
+    margin-bottom: 1.25rem;
+    border: 1px solid #B0C4DE;
+    background: #FFFFFF;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.quest-course-title {
+    background: #E8EFF7;
+    color: #003366;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 0.45rem 0.65rem;
+    border-bottom: 1px solid #B0C4DE;
+}
+
+.quest-meta-table, .quest-class-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+}
+
+.quest-meta-table th, .quest-class-table th {
+    background: #F2F5F8;
+    color: #334155;
+    font-weight: bold;
+    border: 1px solid #D0DCE8;
+    padding: 0.35rem 0.5rem;
+    text-align: left;
+}
+
+.quest-meta-table td, .quest-class-table td {
+    border: 1px solid #D0DCE8;
+    padding: 0.35rem 0.5rem;
+    color: #0F172A;
+    background: #FFFFFF;
+}
+
+/* Authentic Browser Highlight Effect */
+.quest-selected {
+    background-color: #B4D5FE !important;
+    color: #000000 !important;
 }
 
 .image-caption {
-    margin-top: 0.75rem;
-    font-size: 0.8rem;
+    margin-top: 0.85rem;
+    font-size: 0.825rem;
     color: var(--primary-light);
-    font-weight: 500;
+    font-weight: 600;
+    text-align: center;
 }
 
 /* App Card */

@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
     <div class="container">
@@ -36,7 +36,7 @@
             </div>
         </header>
 
-        <!-- Visual Guide Accordion -->
+        <!-- Visual Guide Accordion with Anonymized Mockup -->
         <div class="visual-guide-card">
             <div class="visual-guide-toggle" id="toggle-guide-btn">
                 <div class="toggle-left">
@@ -53,17 +53,155 @@
                     </div>
                     <div class="guide-step">
                         <span class="step-num">2</span>
-                        <span>Make sure the <strong>List View</strong> radio button is selected at the top (not Weekly Calendar View).</span>
+                        <span>Select the <strong>List View</strong> radio button at the top (not Weekly Calendar View).</span>
                     </div>
                     <div class="guide-step">
                         <span class="step-num">3</span>
-                        <span>Highlight all your course tables from the top course title down to the end of the last table (as highlighted below in blue), press <kbd>Ctrl+C</kbd> (or <kbd>Cmd+C</kbd>), and paste it in the box.</span>
+                        <span>Highlight all your course tables from top to bottom (as shown in <span style="background:#B4D5FE; color:#000; padding:1px 4px; border-radius:3px; font-weight:600;">blue</span> below), press <kbd>Ctrl+C</kbd> (or <kbd>Cmd+C</kbd>), and paste it in the box.</span>
                     </div>
                 </div>
-                <div class="guide-image-container">
-                    <img src="quest_copy_guide.png" alt="Example of highlighted text in Quest List View" loading="lazy">
-                    <p class="image-caption">👆 Highlight from the first course header down through your last class row.</p>
+
+                <!-- Recreated Anonymized Quest List View Mockup -->
+                <div class="quest-mockup-wrapper">
+                    <div class="quest-mockup-banner">
+                        <div class="quest-mockup-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <span class="quest-mockup-title">Quest Portal • List View Selection Preview</span>
+                        <span class="quest-mockup-badge">Visual Guide</span>
+                    </div>
+                    <div class="quest-mockup-body">
+                        <!-- Radio Selector -->
+                        <div class="quest-radio-bar">
+                            <label class="quest-radio-selected">
+                                <input type="radio" checked disabled> <strong>List View</strong> (Select this)
+                            </label>
+                            <label class="quest-radio-unselected">
+                                <input type="radio" disabled> Weekly Calendar View
+                            </label>
+                        </div>
+
+                        <!-- Sample Course 1 -->
+                        <div class="quest-course-block">
+                            <div class="quest-course-title quest-selected">CS 135 - Designing Functional Programs</div>
+                            <table class="quest-meta-table">
+                                <thead>
+                                    <tr>
+                                        <th class="quest-selected">Status</th>
+                                        <th>Units</th>
+                                        <th class="quest-selected">Grading</th>
+                                        <th>Grade</th>
+                                        <th class="quest-selected">Deadlines</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="quest-selected">Enrolled</td>
+                                        <td>0.50</td>
+                                        <td class="quest-selected">Numeric Grading Basis</td>
+                                        <td></td>
+                                        <td class="quest-selected">ℹ️</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="quest-class-table">
+                                <thead>
+                                    <tr>
+                                        <th class="quest-selected">Class Nbr</th>
+                                        <th class="quest-selected">Section</th>
+                                        <th class="quest-selected">Component</th>
+                                        <th class="quest-selected">Days & Times</th>
+                                        <th class="quest-selected">Room</th>
+                                        <th class="quest-selected">Instructor</th>
+                                        <th class="quest-selected">Start/End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="quest-selected">5490</td>
+                                        <td class="quest-selected">001</td>
+                                        <td class="quest-selected">LEC</td>
+                                        <td class="quest-selected">MWF 10:30AM - 11:20AM</td>
+                                        <td class="quest-selected">MC 2065</td>
+                                        <td class="quest-selected">Alex Smith</td>
+                                        <td class="quest-selected">09/09/2026 - 12/08/2026</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="quest-selected">5491</td>
+                                        <td class="quest-selected">101</td>
+                                        <td class="quest-selected">TUT</td>
+                                        <td class="quest-selected">T 1:30PM - 2:20PM</td>
+                                        <td class="quest-selected">MC 2065</td>
+                                        <td class="quest-selected">Alex Smith</td>
+                                        <td class="quest-selected">09/09/2026 - 12/08/2026</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Sample Course 2 -->
+                        <div class="quest-course-block">
+                            <div class="quest-course-title quest-selected">MATH 137 - Calculus 1 for Honours Mathematics</div>
+                            <table class="quest-meta-table">
+                                <thead>
+                                    <tr>
+                                        <th class="quest-selected">Status</th>
+                                        <th>Units</th>
+                                        <th class="quest-selected">Grading</th>
+                                        <th>Grade</th>
+                                        <th class="quest-selected">Deadlines</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="quest-selected">Enrolled</td>
+                                        <td>0.50</td>
+                                        <td class="quest-selected">Numeric Grading Basis</td>
+                                        <td></td>
+                                        <td class="quest-selected">ℹ️</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="quest-class-table">
+                                <thead>
+                                    <tr>
+                                        <th class="quest-selected">Class Nbr</th>
+                                        <th class="quest-selected">Section</th>
+                                        <th class="quest-selected">Component</th>
+                                        <th class="quest-selected">Days & Times</th>
+                                        <th class="quest-selected">Room</th>
+                                        <th class="quest-selected">Instructor</th>
+                                        <th class="quest-selected">Start/End Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="quest-selected">4120</td>
+                                        <td class="quest-selected">001</td>
+                                        <td class="quest-selected">LEC</td>
+                                        <td class="quest-selected">TTh 10:00AM - 11:20AM</td>
+                                        <td class="quest-selected">DC 1350</td>
+                                        <td class="quest-selected">Jordan Taylor</td>
+                                        <td class="quest-selected">09/09/2026 - 12/08/2026</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="quest-selected">4121</td>
+                                        <td class="quest-selected">101</td>
+                                        <td class="quest-selected">TUT</td>
+                                        <td class="quest-selected">Th 3:30PM - 4:20PM</td>
+                                        <td class="quest-selected">DC 1350</td>
+                                        <td class="quest-selected">Jordan Taylor</td>
+                                        <td class="quest-selected">09/09/2026 - 12/08/2026</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+
+                <p class="image-caption">👆 Highlight from the first course header down through your last class row.</p>
             </div>
         </div>
 
@@ -157,6 +295,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>
