@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Load Sample Schedule
+    // Load Randomized Sample Schedule
     if (loadSampleBtn) {
         loadSampleBtn.addEventListener('click', () => {
-            scheduleInput.value = getSampleSchedule();
-            showStatus('Sample schedule loaded! Click "Generate Calendar File" to test.', 'success');
+            scheduleInput.value = getRandomizedSampleSchedule();
+            showStatus('🎲 Generated an anonymized sample schedule! Click "Generate Calendar File" to test.', 'success');
         });
     }
 
@@ -510,53 +510,61 @@ function downloadICS(content, filename) {
     }, 150);
 }
 
-function getSampleSchedule() {
-    return `SYDE 202 - Seminar
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.00\tNon-Graded Component\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4629\t001\tSEM\tF 12:30PM - 1:20PM\tE7 4433\tJohn Zelek\t09/09/2026 - 12/08/2026
+// Generates a completely randomized, anonymized sample Waterloo schedule
+function getRandomizedSampleSchedule() {
+    const coursePool = [
+        { code: 'CS 135', name: 'Designing Functional Programs' },
+        { code: 'MATH 137', name: 'Calculus 1 for Honours Mathematics' },
+        { code: 'MATH 135', name: 'Algebra for Honours Mathematics' },
+        { code: 'ECE 105', name: 'Classical Mechanics' },
+        { code: 'SE 101', name: 'Introduction to Software Engineering' },
+        { code: 'PHYS 121', name: 'Mechanics and Waves' },
+        { code: 'STAT 230', name: 'Probability & Statistics' },
+        { code: 'ENGL 109', name: 'Academic Writing & Communication' },
+        { code: 'ECON 101', name: 'Introduction to Microeconomics' },
+        { code: 'CHEM 120', name: 'General Chemistry 1' }
+    ];
 
-SYDE 212 - Probability, Stats & Data Sci
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4744\t001\tLEC\tT 10:30AM - 12:20PM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
-\t\t\tTh 10:30AM - 11:20AM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
-4745\t101\tTUT\tTh 11:30AM - 12:20PM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
+    const instructorPool = [
+        'Alex Smith', 'Jordan Taylor', 'Morgan Lee', 
+        'Casey Chen', 'Taylor Patel', 'Sam Rivera', 
+        'Riley Johnson', 'Jamie Williams', 'Avery Davis'
+    ];
 
-SYDE 252 - Linear Systems & Signals
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4498\t001\tLEC\tTTh 9:00AM - 10:20AM\tE7 4433\tNima Maftoon\t09/09/2026 - 12/08/2026
-4499\t101\tTUT\tW 8:30AM - 9:20AM\tE7 4433\tNima Maftoon\t09/09/2026 - 12/08/2026
+    const roomPool = [
+        'MC 2065', 'DC 1350', 'STC 1012', 'E7 2005', 
+        'E5 2004', 'RCH 101', 'AL 116', 'PHY 145', 'QNC 1501'
+    ];
 
-SYDE 262 - Eng Economics & Sustainability
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4746\t001\tLEC\tMW 9:30AM - 10:50AM\tE7 4433\tJessie Ma\t09/09/2026 - 12/08/2026
-4747\t101\tTUT\tF 2:30PM - 3:20PM\tRCH 307\tJessie Ma\t09/09/2026 - 12/08/2026
+    const timeSlots = [
+        { lec: 'MWF 9:30AM - 10:20AM', tut: 'T 1:30PM - 2:20PM' },
+        { lec: 'TTh 10:00AM - 11:20AM', tut: 'W 3:30PM - 4:20PM' },
+        { lec: 'MWF 11:30AM - 12:20PM', tut: 'Th 4:30PM - 5:20PM' },
+        { lec: 'MW 1:30PM - 2:50PM', tut: 'F 8:30AM - 9:20AM' },
+        { lec: 'TTh 2:30PM - 3:50PM', tut: 'M 4:30PM - 5:20PM' }
+    ];
 
-SYDE 286 - Mechanics of Deformable Solids
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4765\t001\tLEC\tW 11:00AM - 12:20PM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
-\t\t\tF 9:30AM - 10:50AM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
-4766\t101\tTUT\tF 8:30AM - 9:20AM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
+    // Pick 4 random distinct courses
+    const shuffledCourses = [...coursePool].sort(() => 0.5 - Math.random()).slice(0, 4);
+    const shuffledInstructors = [...instructorPool].sort(() => 0.5 - Math.random());
+    const shuffledRooms = [...roomPool].sort(() => 0.5 - Math.random());
 
-SYDE 292 - Circuits/Instrument/Measure
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4817\t101\tTUT\tM 8:30AM - 9:20AM\tE7 4433\tRobert Hunter\t09/09/2026 - 12/08/2026
-4500\t001\tLEC\tMF 11:00AM - 12:20PM\tE7 4433\tRobert Hunter\t09/09/2026 - 12/08/2026
+    const lines = [];
 
-SYDE 292L - Circuit/Instrument/Measure Lab
-Status\tUnits\tGrading\tGrade\tDeadlines
-Enrolled\t0.25\tNumeric Grading Basis\tAcademic Calendar Deadlines
-Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
-4951\t004\tLAB\tTh 1:30PM - 4:20PM\tE5 6007\tOrion Bruckman\t09/09/2026 - 12/08/2026`;
+    shuffledCourses.forEach((course, idx) => {
+        const prof = shuffledInstructors[idx % shuffledInstructors.length];
+        const room = shuffledRooms[idx % shuffledRooms.length];
+        const times = timeSlots[idx % timeSlots.length];
+        const lecNum = Math.floor(4000 + Math.random() * 5000);
+        const tutNum = Math.floor(4000 + Math.random() * 5000);
+
+        lines.push(`${course.code} - ${course.name}`);
+        lines.push('Status\tUnits\tGrading\tGrade\tDeadlines');
+        lines.push('Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines');
+        lines.push('Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date');
+        lines.push(`${lecNum}\t001\tLEC\t${times.lec}\t${room}\t${prof}\t09/09/2026 - 12/08/2026`);
+        lines.push(`${tutNum}\t101\tTUT\t${times.tut}\t${room}\t${prof}\t09/09/2026 - 12/08/2026\n`);
+    });
+
+    return lines.join('\n');
 }
