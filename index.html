@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div class="container">
@@ -21,20 +21,51 @@
                 <span>University of Waterloo • Quest Exporter</span>
             </div>
             <h1>Quest Schedule ➔ <span>Google Calendar</span></h1>
-            <p>Easily convert your unstructured Waterloo class schedule into a downloadable, recurring <code>.ics</code> calendar file.</p>
+            <p>Easily convert your Waterloo class schedule into a downloadable, recurring <code>.ics</code> calendar file.</p>
             
             <div class="steps-row">
                 <div class="step-pill">
-                    <span class="step-num">1</span> Highlight & copy in Quest
+                    <span class="step-num">1</span> Copy List View from Quest
                 </div>
                 <div class="step-pill">
                     <span class="step-num">2</span> Paste below & generate
                 </div>
                 <div class="step-pill">
-                    <span class="step-num">3</span> Import to your calendar
+                    <span class="step-num">3</span> Import into Calendar
                 </div>
             </div>
         </header>
+
+        <!-- Visual Guide Accordion -->
+        <div class="visual-guide-card">
+            <div class="visual-guide-toggle" id="toggle-guide-btn">
+                <div class="toggle-left">
+                    <span class="guide-badge">📸 Visual Guide</span>
+                    <strong>How to copy from Quest's "List View" (click to expand)</strong>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="visual-guide-content hidden" id="guide-content">
+                <div class="guide-instructions-list">
+                    <div class="guide-step">
+                        <span class="step-num">1</span>
+                        <span>Log into Quest and navigate to <strong>Enroll</strong> &gt; <strong>My Class Schedule</strong>.</span>
+                    </div>
+                    <div class="guide-step">
+                        <span class="step-num">2</span>
+                        <span>Make sure the <strong>List View</strong> radio button is selected at the top (not Weekly Calendar View).</span>
+                    </div>
+                    <div class="guide-step">
+                        <span class="step-num">3</span>
+                        <span>Highlight all your course tables from the top course title down to the end of the last table (as highlighted below in blue), press <kbd>Ctrl+C</kbd> (or <kbd>Cmd+C</kbd>), and paste it in the box.</span>
+                    </div>
+                </div>
+                <div class="guide-image-container">
+                    <img src="quest_copy_guide.png" alt="Example of highlighted text in Quest List View" loading="lazy">
+                    <p class="image-caption">👆 Highlight from the first course header down through your last class row.</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Converter Card -->
         <div class="main-card">
@@ -126,6 +157,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>

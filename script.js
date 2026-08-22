@@ -20,6 +20,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIcsContent = null;
     let parsedEvents = [];
 
+    const toggleGuideBtn = document.getElementById('toggle-guide-btn');
+    const guideContent = document.getElementById('guide-content');
+
+    // Visual Guide Accordion Toggle
+    if (toggleGuideBtn && guideContent) {
+        toggleGuideBtn.addEventListener('click', () => {
+            const isHidden = guideContent.classList.contains('hidden');
+            if (isHidden) {
+                guideContent.classList.remove('hidden');
+                toggleGuideBtn.classList.add('open');
+            } else {
+                guideContent.classList.add('hidden');
+                toggleGuideBtn.classList.remove('open');
+            }
+        });
+    }
+
     // Tab Switching
     if (tabGridBtn && tabTableBtn) {
         tabGridBtn.addEventListener('click', () => {
