@@ -1,55 +1,122 @@
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generate-btn');
     const downloadAgainBtn = document.getElementById('download-again-btn');
+    const pasteClipboardBtn = document.getElementById('paste-clipboard-btn');
+    const loadSampleBtn = document.getElementById('load-sample-btn');
+    const clearBtn = document.getElementById('clear-btn');
     const scheduleInput = document.getElementById('schedule-input');
     const statusMessage = document.getElementById('status-message');
     const previewSection = document.getElementById('preview-section');
     const instructions = document.getElementById('instructions');
     const scheduleTbody = document.getElementById('schedule-tbody');
     const eventCountSpan = document.getElementById('event-count');
+    const calendarGrid = document.getElementById('calendar-grid');
+
+    const tabGridBtn = document.getElementById('tab-grid-btn');
+    const tabTableBtn = document.getElementById('tab-table-btn');
+    const gridViewContainer = document.getElementById('grid-view-container');
+    const tableViewContainer = document.getElementById('table-view-container');
 
     let currentIcsContent = null;
+    let parsedEvents = [];
 
+    // Tab Switching
+    if (tabGridBtn && tabTableBtn) {
+        tabGridBtn.addEventListener('click', () => {
+            tabGridBtn.classList.add('active');
+            tabTableBtn.classList.remove('active');
+            gridViewContainer.classList.remove('hidden');
+            tableViewContainer.classList.add('hidden');
+        });
+
+        tabTableBtn.addEventListener('click', () => {
+            tabTableBtn.classList.add('active');
+            tabGridBtn.classList.remove('active');
+            tableViewContainer.classList.remove('hidden');
+            gridViewContainer.classList.add('hidden');
+        });
+    }
+
+    // Quick Paste from Clipboard
+    if (pasteClipboardBtn) {
+        pasteClipboardBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    scheduleInput.value = text;
+                    showStatus('Pasted from clipboard! Click "Generate Calendar File" below.', 'success');
+                }
+            } catch (err) {
+                scheduleInput.focus();
+                showStatus('Press Ctrl+V (or Cmd+V) to paste your schedule.', 'error');
+            }
+        });
+    }
+
+    // Load Sample Schedule
+    if (loadSampleBtn) {
+        loadSampleBtn.addEventListener('click', () => {
+            scheduleInput.value = getSampleSchedule();
+            showStatus('Sample schedule loaded! Click "Generate Calendar File" to test.', 'success');
+        });
+    }
+
+    // Clear Button
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            scheduleInput.value = '';
+            previewSection.classList.add('hidden');
+            instructions.classList.add('hidden');
+            statusMessage.classList.add('hidden');
+        });
+    }
+
+    // Generate Calendar File
     if (generateBtn) {
         generateBtn.addEventListener('click', () => {
             const text = scheduleInput.value;
-            if (!text.trim()) {
-                showStatus('Please paste your schedule in the text box first.', 'error');
+            if (!text || !text.trim()) {
+                showStatus('Please paste your Quest schedule in the box above.', 'error');
                 return;
             }
 
             try {
-                const events = parseSchedule(text);
-                if (events.length === 0) {
-                    showStatus('No classes found in the provided text. Please ensure you highlighted and copied your schedule table directly from Quest.', 'error');
+                parsedEvents = parseSchedule(text);
+                if (parsedEvents.length === 0) {
+                    showStatus('No classes found in the provided text. Please ensure you copied your entire schedule from Quest.', 'error');
                     previewSection.classList.add('hidden');
                     instructions.classList.add('hidden');
                     return;
                 }
 
-                // Render preview table
-                renderPreview(events);
+                // Render both views
+                renderTableView(parsedEvents);
+                renderGridView(parsedEvents);
 
                 // Generate ICS file
-                currentIcsContent = generateICS(events);
+                currentIcsContent = generateICS(parsedEvents);
                 try {
                     downloadICS(currentIcsContent, 'quest_schedule.ics');
                 } catch (dlErr) {
-                    console.warn('Auto download failed:', dlErr);
+                    console.warn('Auto download blocked:', dlErr);
                 }
 
-                const uniqueCourses = [...new Set(events.map(e => e.courseCode))];
-                showStatus(`Success! Found ${uniqueCourses.length} course(s) and ${events.length} weekly class session(s). Your .ics file has been downloaded.`, 'success');
+                const uniqueCourses = [...new Set(parsedEvents.map(e => e.courseCode))];
+                showStatus(`✨ Success! Parsed ${uniqueCourses.length} course(s) and ${parsedEvents.length} weekly class session(s). Your .ics file is downloading.`, 'success');
                 
                 previewSection.classList.remove('hidden');
                 instructions.classList.remove('hidden');
+
+                // Smooth scroll to preview
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } catch (error) {
                 console.error('Parsing error:', error);
-                showStatus('An error occurred while parsing the schedule: ' + error.message, 'error');
+                showStatus('An error occurred while parsing: ' + error.message, 'error');
             }
         });
     }
 
+    // Download Again Button
     if (downloadAgainBtn) {
         downloadAgainBtn.addEventListener('click', () => {
             if (currentIcsContent) {
@@ -58,22 +125,101 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderPreview(events) {
+    function renderTableView(events) {
         scheduleTbody.innerHTML = '';
         eventCountSpan.textContent = events.length;
 
         events.forEach(evt => {
             const tr = document.createElement('tr');
+            const compClass = getCompClass(evt.component);
             tr.innerHTML = `
-                <td><strong>${escapeHtml(evt.courseCode)}</strong><br><small style="color:#64748b">${escapeHtml(evt.courseName)}</small></td>
-                <td><span class="component-tag">${escapeHtml(evt.component)}</span></td>
-                <td><strong>${escapeHtml(evt.daysRaw)}</strong> ${escapeHtml(evt.startTime)} - ${escapeHtml(evt.endTime)}</td>
+                <td><strong>${escapeHtml(evt.courseCode)}</strong><br><small style="color:#94A3B8">${escapeHtml(evt.courseName)}</small></td>
+                <td><span class="component-tag ${compClass}">${escapeHtml(evt.component)}</span></td>
+                <td><strong style="color:#F59E0B">${escapeHtml(evt.daysRaw)}</strong> ${escapeHtml(evt.startTime)} - ${escapeHtml(evt.endTime)}</td>
                 <td>${escapeHtml(evt.room)}</td>
                 <td>${escapeHtml(evt.instructor)}</td>
                 <td><small>${escapeHtml(evt.startDate)} - ${escapeHtml(evt.endDate)}</small></td>
             `;
             scheduleTbody.appendChild(tr);
         });
+    }
+
+    function renderGridView(events) {
+        if (!calendarGrid) return;
+        calendarGrid.innerHTML = '';
+
+        const days = [
+            { key: 'MO', label: 'Monday' },
+            { key: 'TU', label: 'Tuesday' },
+            { key: 'WE', label: 'Wednesday' },
+            { key: 'TH', label: 'Thursday' },
+            { key: 'FR', label: 'Friday' }
+        ];
+
+        // Create Day Columns
+        days.forEach(day => {
+            const col = document.createElement('div');
+            col.className = 'grid-day-col';
+
+            const header = document.createElement('div');
+            header.className = 'grid-header-cell';
+            header.textContent = day.label;
+            col.appendChild(header);
+
+            // Filter events that occur on this day
+            const dayEvents = events.filter(e => e.days.includes(day.key));
+            
+            // Sort chronologically by start time
+            dayEvents.sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+
+            if (dayEvents.length === 0) {
+                const empty = document.createElement('div');
+                empty.style.color = '#475569';
+                empty.style.fontSize = '0.75rem';
+                empty.style.textAlign = 'center';
+                empty.style.padding = '1.5rem 0.5rem';
+                empty.textContent = 'No classes';
+                col.appendChild(empty);
+            } else {
+                dayEvents.forEach(e => {
+                    const card = document.createElement('div');
+                    const compClass = getCompClass(e.component);
+                    card.className = `class-card ${compClass}`;
+                    card.innerHTML = `
+                        <div class="class-card-header">
+                            <span class="class-code">${escapeHtml(e.courseCode)}</span>
+                            <span class="class-badge">${escapeHtml(e.component)}</span>
+                        </div>
+                        <div class="class-time">⏰ ${escapeHtml(e.startTime)} - ${escapeHtml(e.endTime)}</div>
+                        <div class="class-room">📍 ${escapeHtml(e.room)}</div>
+                        <div class="class-prof">👤 ${escapeHtml(e.instructor)}</div>
+                    `;
+                    col.appendChild(card);
+                });
+            }
+
+            calendarGrid.appendChild(col);
+        });
+    }
+
+    function getCompClass(comp) {
+        const c = String(comp).toUpperCase();
+        if (c.includes('LEC')) return 'lec';
+        if (c.includes('TUT')) return 'tut';
+        if (c.includes('LAB')) return 'lab';
+        if (c.includes('SEM')) return 'sem';
+        return 'lec';
+    }
+
+    function timeToMinutes(timeStr) {
+        const match = timeStr.match(/(\d{1,2}):(\d{2})([AP]M)/i);
+        if (!match) return 0;
+        let hours = parseInt(match[1], 10);
+        const mins = parseInt(match[2], 10);
+        const ampm = match[3].toUpperCase();
+        if (ampm === 'PM' && hours < 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        return hours * 60 + mins;
     }
 
     function showStatus(message, type) {
@@ -95,12 +241,10 @@ function escapeHtml(str) {
 function parseSchedule(text) {
     if (!text) return [];
 
-    // Normalize characters (non-breaking spaces, unicode dashes, etc.)
     let cleaned = text
         .replace(/[\u00A0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]/g, ' ')
         .replace(/[–—−‐]/g, '-');
 
-    // Split by lines and tab characters to handle both table paste and plain text copy
     const rawLines = cleaned.split(/[\r\n]+/);
     const lines = [];
     for (const rawLine of rawLines) {
@@ -118,20 +262,16 @@ function parseSchedule(text) {
     let currentCourseName = null;
     let currentComponent = null;
 
-    // Strict time pattern (checked first so times like "TTh 9:00AM - 10:20AM" or "MW 9:30AM - 10:50AM" are never confused with courses)
     const timeRegex = /^((?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun|Mo|Tu|We|Th|Fr|Sa|Su|M|T|W|F)[,\s/]*)+)\s+(\d{1,2}:\d{2}(?:\s*[AP]M)?)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)$/i;
-    // Course header pattern: requires hyphen or Status so room numbers like "RCH 307" or "E7 4433" are not treated as courses
     const courseRegex = /^\s*([A-Z]{2,6}\s+\d{1,4}[A-Z]?)(?:\s*-\s*(.*?)(?:\s*Status.*|\t.*)?|\s*Status.*)$/i;
-    // Component tags
     const componentRegex = /^(LEC|TUT|LAB|SEM|TST|PRJ|STU|CLN|WSP|EXM|RDG|PRA|THE|DIS|FLD)$/i;
-    // Date ranges (MM/DD/YYYY - MM/DD/YYYY or YYYY/MM/DD - YYYY/MM/DD)
     const datesRegex = /^(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*-\s*(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})$/;
 
     let i = 0;
     while (i < lines.length) {
         const line = lines[i];
 
-        // 1. Check for Class Time Block FIRST
+        // 1. Time Block Check (Priority)
         const timeMatch = line.match(timeRegex);
         if (timeMatch && currentCourseCode) {
             const daysStr = timeMatch[1].trim();
@@ -143,7 +283,6 @@ function parseSchedule(text) {
             let startDateStr = null;
             let endDateStr = null;
 
-            // Look ahead up to 6 lines to gather Room, Instructor, and Dates
             const lookAheadLimit = Math.min(i + 6, lines.length);
             for (let j = i + 1; j < lookAheadLimit; j++) {
                 const peekLine = lines[j];
@@ -159,7 +298,7 @@ function parseSchedule(text) {
                         instructor = lines[i + 2];
                     }
 
-                    i = j; // advance past this block
+                    i = j;
                     break;
                 }
             }
@@ -186,7 +325,7 @@ function parseSchedule(text) {
             continue;
         }
 
-        // 2. Check for Component Tag (LEC, TUT, LAB, SEM)
+        // 2. Component Tag Check
         const componentMatch = line.match(componentRegex);
         if (componentMatch) {
             currentComponent = componentMatch[1].toUpperCase();
@@ -194,13 +333,13 @@ function parseSchedule(text) {
             continue;
         }
 
-        // 3. Check for Course Header (e.g. SYDE 202 - Seminar)
+        // 3. Course Header Check
         const courseMatch = line.match(courseRegex);
         if (courseMatch) {
             currentCourseCode = courseMatch[1].trim();
             const rawTitle = courseMatch[2] ? courseMatch[2] : currentCourseCode;
             currentCourseName = rawTitle.replace(/Status.*$/i, '').trim();
-            currentComponent = null; // reset component for new course
+            currentComponent = null;
             i++;
             continue;
         }
@@ -244,10 +383,29 @@ function generateICS(events) {
     const ics = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Antigravity//Quest Schedule Exporter//EN',
+        'PRODID:-//University of Waterloo//Quest Schedule Exporter//EN',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
-        'X-WR-TIMEZONE:America/Toronto'
+        'X-WR-CALNAME:Quest Class Schedule',
+        'X-WR-TIMEZONE:America/Toronto',
+        'BEGIN:VTIMEZONE',
+        'TZID:America/Toronto',
+        'X-LIC-LOCATION:America/Toronto',
+        'BEGIN:DAYLIGHT',
+        'TZOFFSETFROM:-0500',
+        'TZOFFSETTO:-0400',
+        'TZNAME:EDT',
+        'DTSTART:19700308T020000',
+        'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+        'END:DAYLIGHT',
+        'BEGIN:STANDARD',
+        'TZOFFSETFROM:-0400',
+        'TZOFFSETTO:-0500',
+        'TZNAME:EST',
+        'DTSTART:19701101T020000',
+        'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+        'END:STANDARD',
+        'END:VTIMEZONE'
     ];
 
     events.forEach((event, idx) => {
@@ -349,5 +507,56 @@ function downloadICS(content, filename) {
     setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
-    }, 100);
+    }, 150);
+}
+
+function getSampleSchedule() {
+    return `SYDE 202 - Seminar
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.00\tNon-Graded Component\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4629\t001\tSEM\tF 12:30PM - 1:20PM\tE7 4433\tJohn Zelek\t09/09/2026 - 12/08/2026
+
+SYDE 212 - Probability, Stats & Data Sci
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4744\t001\tLEC\tT 10:30AM - 12:20PM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
+\t\t\tTh 10:30AM - 11:20AM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
+4745\t101\tTUT\tTh 11:30AM - 12:20PM\tE7 4433\tMike Cooper-Stachowsky\t09/09/2026 - 12/08/2026
+
+SYDE 252 - Linear Systems & Signals
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4498\t001\tLEC\tTTh 9:00AM - 10:20AM\tE7 4433\tNima Maftoon\t09/09/2026 - 12/08/2026
+4499\t101\tTUT\tW 8:30AM - 9:20AM\tE7 4433\tNima Maftoon\t09/09/2026 - 12/08/2026
+
+SYDE 262 - Eng Economics & Sustainability
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4746\t001\tLEC\tMW 9:30AM - 10:50AM\tE7 4433\tJessie Ma\t09/09/2026 - 12/08/2026
+4747\t101\tTUT\tF 2:30PM - 3:20PM\tRCH 307\tJessie Ma\t09/09/2026 - 12/08/2026
+
+SYDE 286 - Mechanics of Deformable Solids
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4765\t001\tLEC\tW 11:00AM - 12:20PM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
+\t\t\tF 9:30AM - 10:50AM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
+4766\t101\tTUT\tF 8:30AM - 9:20AM\tE7 4433\tReem Roufail\t09/09/2026 - 12/08/2026
+
+SYDE 292 - Circuits/Instrument/Measure
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.50\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4817\t101\tTUT\tM 8:30AM - 9:20AM\tE7 4433\tRobert Hunter\t09/09/2026 - 12/08/2026
+4500\t001\tLEC\tMF 11:00AM - 12:20PM\tE7 4433\tRobert Hunter\t09/09/2026 - 12/08/2026
+
+SYDE 292L - Circuit/Instrument/Measure Lab
+Status\tUnits\tGrading\tGrade\tDeadlines
+Enrolled\t0.25\tNumeric Grading Basis\tAcademic Calendar Deadlines
+Class Nbr\tSection\tComponent\tDays & Times\tRoom\tInstructor\tStart/End Date
+4951\t004\tLAB\tTh 1:30PM - 4:20PM\tE5 6007\tOrion Bruckman\t09/09/2026 - 12/08/2026`;
 }

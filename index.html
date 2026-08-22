@@ -6,40 +6,84 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Quest Schedule to Google Calendar</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <title>Waterloo Quest Schedule Exporter | Convert to Google & Apple Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="container">
+        <!-- Hero Header -->
         <header>
-            <div class="badge">University of Waterloo</div>
-            <h1>Quest Schedule Exporter</h1>
-            <p>Highlight your schedule on Quest (<kbd>Ctrl+A</kbd> or drag-select), copy it (<kbd>Ctrl+C</kbd>), and paste it below.</p>
+            <div class="badge-wrapper">
+                <div class="pulse-dot"></div>
+                <span>University of Waterloo • Quest Exporter</span>
+            </div>
+            <h1>Quest Schedule ➔ <span>Google Calendar</span></h1>
+            <p>Easily convert your unstructured Waterloo class schedule into a downloadable, recurring <code>.ics</code> calendar file.</p>
+            
+            <div class="steps-row">
+                <div class="step-pill">
+                    <span class="step-num">1</span> Highlight & copy in Quest
+                </div>
+                <div class="step-pill">
+                    <span class="step-num">2</span> Paste below & generate
+                </div>
+                <div class="step-pill">
+                    <span class="step-num">3</span> Import to your calendar
+                </div>
+            </div>
         </header>
 
-        <main>
-            <textarea id="schedule-input" placeholder="Paste your Quest class schedule text here..."></textarea>
-            
-            <div class="button-group">
-                <button id="generate-btn" type="button">Generate Calendar File (.ics)</button>
+        <!-- Main Converter Card -->
+        <div class="main-card">
+            <div class="textarea-toolbar">
+                <span class="toolbar-label">Paste Schedule Text</span>
+                <div class="toolbar-actions">
+                    <button type="button" id="paste-clipboard-btn" class="tool-btn">📋 Paste from Clipboard</button>
+                    <button type="button" id="load-sample-btn" class="tool-btn highlight">✨ Load Sample</button>
+                    <button type="button" id="clear-btn" class="tool-btn">🗑️ Clear</button>
+                </div>
             </div>
+
+            <div class="textarea-wrapper">
+                <textarea id="schedule-input" placeholder="Highlight your schedule on Quest (Ctrl+A or drag-select), copy it (Ctrl+C), and paste it here..."></textarea>
+            </div>
+
+            <button id="generate-btn" class="cta-btn" type="button">
+                <span>⚡ Generate & Download Calendar (.ics)</span>
+            </button>
 
             <div id="status-message" class="hidden"></div>
 
+            <!-- Schedule Preview Section -->
             <div id="preview-section" class="hidden">
-                <div class="preview-header">
-                    <h2>Weekly Schedule Preview (<span id="event-count">0</span> classes found)</h2>
-                    <div class="btn-row">
-                        <button id="download-again-btn" class="secondary-btn" type="button">📥 Download .ics</button>
+                <div class="preview-top">
+                    <div class="preview-title">
+                        <h2>Parsed Schedule (<span id="event-count">0</span> sessions)</h2>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <div class="view-switcher">
+                            <button type="button" id="tab-grid-btn" class="tab-btn active">📅 Weekly Grid</button>
+                            <button type="button" id="tab-table-btn" class="tab-btn">📋 Table View</button>
+                        </div>
+                        <button id="download-again-btn" class="action-btn-sm" type="button">📥 Download .ics</button>
                     </div>
                 </div>
 
-                <div class="table-responsive">
+                <!-- Visual Weekly Calendar Grid -->
+                <div id="grid-view-container" class="calendar-grid-wrapper">
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+
+                <!-- Detailed Table View -->
+                <div id="table-view-container" class="table-responsive hidden">
                     <table id="schedule-table">
                         <thead>
                             <tr>
                                 <th>Course</th>
-                                <th>Component</th>
+                                <th>Type</th>
                                 <th>Day & Time</th>
                                 <th>Room</th>
                                 <th>Instructor</th>
@@ -50,385 +94,38 @@
                     </table>
                 </div>
             </div>
-            
-            <div id="instructions" class="hidden">
-                <h3>📅 How to import into Google Calendar:</h3>
-                <ol>
-                    <li>Open <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer">Google Calendar</a>.</li>
-                    <li>Click the <strong>⚙ Settings</strong> gear icon in the top right &gt; <strong>Settings</strong>.</li>
-                    <li>In the left sidebar, click <strong>Import & export</strong>.</li>
-                    <li>Click <strong>Select file from your computer</strong> and choose the downloaded <code>quest_schedule.ics</code>.</li>
-                    <li>Select your target calendar (e.g. "Classes" or your primary calendar) and click <strong>Import</strong>.</li>
-                </ol>
+        </div>
+
+        <!-- Import Guides Section -->
+        <div id="instructions" class="guide-card">
+            <div class="guide-header">
+                <span class="guide-icon">📅</span>
+                <h3>How to Import Your .ics Calendar File</h3>
             </div>
-        </main>
+            
+            <div class="guide-steps">
+                <div class="guide-step-item">
+                    <span class="guide-step-num">GOOGLE CALENDAR</span>
+                    <p>Open <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer">Google Calendar</a>, click <strong>⚙ Settings</strong> &gt; <strong>Import & export</strong> &gt; Select the downloaded <code>.ics</code> file and click <strong>Import</strong>.</p>
+                </div>
+                <div class="guide-step-item">
+                    <span class="guide-step-num">APPLE CALENDAR (MAC / IOS)</span>
+                    <p>Double-click the downloaded <code>quest_schedule.ics</code> file. Apple Calendar will open and prompt you to select a calendar to add your classes to.</p>
+                </div>
+                <div class="guide-step-item">
+                    <span class="guide-step-num">OUTLOOK</span>
+                    <p>Open <a href="https://outlook.live.com/calendar" target="_blank" rel="noopener noreferrer">Outlook Calendar</a> &gt; <strong>Add calendar</strong> &gt; <strong>Upload from file</strong> &gt; Choose the <code>.ics</code> file and select a calendar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>🦅 Built for University of Waterloo Warriors</p>
+            <p style="opacity: 0.6; font-size: 0.75rem;">100% Client-Side & Private • No schedule data is sent to or stored on any server.</p>
+        </footer>
     </div>
 
-    <script>
-    // Inline script for instant zero-cache execution
-    document.addEventListener('DOMContentLoaded', () => {
-        const generateBtn = document.getElementById('generate-btn');
-        const downloadAgainBtn = document.getElementById('download-again-btn');
-        const scheduleInput = document.getElementById('schedule-input');
-        const statusMessage = document.getElementById('status-message');
-        const previewSection = document.getElementById('preview-section');
-        const instructions = document.getElementById('instructions');
-        const scheduleTbody = document.getElementById('schedule-tbody');
-        const eventCountSpan = document.getElementById('event-count');
-
-        let currentIcsContent = null;
-
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => {
-                const text = scheduleInput.value;
-                if (!text || !text.trim()) {
-                    showStatus('Please paste your schedule in the text box first.', 'error');
-                    return;
-                }
-
-                try {
-                    const events = parseSchedule(text);
-                    if (events.length === 0) {
-                        showStatus('No classes found. Please ensure you copied your full schedule from Quest.', 'error');
-                        previewSection.classList.add('hidden');
-                        instructions.classList.add('hidden');
-                        return;
-                    }
-
-                    renderPreview(events);
-
-                    currentIcsContent = generateICS(events);
-                    try {
-                        downloadICS(currentIcsContent, 'quest_schedule.ics');
-                    } catch (dlErr) {
-                        console.warn('Auto download error:', dlErr);
-                    }
-
-                    const uniqueCourses = [...new Set(events.map(e => e.courseCode))];
-                    showStatus(`Successfully generated .ics file for ${uniqueCourses.length} course(s) and ${events.length} weekly class session(s)!`, 'success');
-                    
-                    previewSection.classList.remove('hidden');
-                    instructions.classList.remove('hidden');
-                } catch (error) {
-                    console.error('Parsing error:', error);
-                    showStatus('Error: ' + error.message, 'error');
-                }
-            });
-        }
-
-        if (downloadAgainBtn) {
-            downloadAgainBtn.addEventListener('click', () => {
-                if (currentIcsContent) {
-                    downloadICS(currentIcsContent, 'quest_schedule.ics');
-                }
-            });
-        }
-
-        function renderPreview(events) {
-            scheduleTbody.innerHTML = '';
-            eventCountSpan.textContent = events.length;
-
-            events.forEach(evt => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${escapeHtml(evt.courseCode)}</strong><br><small style="color:#64748b">${escapeHtml(evt.courseName)}</small></td>
-                    <td><span class="component-tag">${escapeHtml(evt.component)}</span></td>
-                    <td><strong>${escapeHtml(evt.daysRaw)}</strong> ${escapeHtml(evt.startTime)} - ${escapeHtml(evt.endTime)}</td>
-                    <td>${escapeHtml(evt.room)}</td>
-                    <td>${escapeHtml(evt.instructor)}</td>
-                    <td><small>${escapeHtml(evt.startDate)} - ${escapeHtml(evt.endDate)}</small></td>
-                `;
-                scheduleTbody.appendChild(tr);
-            });
-        }
-
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = type;
-            statusMessage.classList.remove('hidden');
-        }
-    });
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
-    function parseSchedule(text) {
-        if (!text) return [];
-
-        let cleaned = text
-            .replace(/[\u00A0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]/g, ' ')
-            .replace(/[–—−‐]/g, '-');
-
-        const rawLines = cleaned.split(/[\r\n]+/);
-        const lines = [];
-        for (const rawLine of rawLines) {
-            const parts = rawLine.split('\t');
-            for (const part of parts) {
-                const trimmed = part.trim();
-                if (trimmed.length > 0) {
-                    lines.push(trimmed);
-                }
-            }
-        }
-
-        const events = [];
-        let currentCourseCode = null;
-        let currentCourseName = null;
-        let currentComponent = null;
-
-        const timeRegex = /^((?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun|Mo|Tu|We|Th|Fr|Sa|Su|M|T|W|F)[,\s/]*)+)\s+(\d{1,2}:\d{2}(?:\s*[AP]M)?)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)$/i;
-        const courseRegex = /^\s*([A-Z]{2,6}\s+\d{1,4}[A-Z]?)(?:\s*-\s*(.*?)(?:\s*Status.*|\t.*)?|\s*Status.*)$/i;
-        const componentRegex = /^(LEC|TUT|LAB|SEM|TST|PRJ|STU|CLN|WSP|EXM|RDG|PRA|THE|DIS|FLD)$/i;
-        const datesRegex = /^(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*-\s*(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})$/;
-
-        let i = 0;
-        while (i < lines.length) {
-            const line = lines[i];
-
-            // 1. Time Block Check (Priority)
-            const timeMatch = line.match(timeRegex);
-            if (timeMatch && currentCourseCode) {
-                const daysStr = timeMatch[1].trim();
-                const startTimeStr = timeMatch[2].replace(/\s+/g, '').toUpperCase();
-                const endTimeStr = timeMatch[3].replace(/\s+/g, '').toUpperCase();
-
-                let room = 'TBA';
-                let instructor = 'TBA';
-                let startDateStr = null;
-                let endDateStr = null;
-
-                const lookAheadLimit = Math.min(i + 6, lines.length);
-                for (let j = i + 1; j < lookAheadLimit; j++) {
-                    const peekLine = lines[j];
-                    const datesMatch = peekLine.match(datesRegex);
-                    if (datesMatch) {
-                        startDateStr = datesMatch[1];
-                        endDateStr = datesMatch[2];
-
-                        if (j > i + 1 && !lines[i + 1].match(datesRegex) && !lines[i + 1].match(timeRegex) && !lines[i + 1].match(componentRegex) && !lines[i + 1].match(courseRegex)) {
-                            room = lines[i + 1];
-                        }
-                        if (j > i + 2 && !lines[i + 2].match(datesRegex) && !lines[i + 2].match(timeRegex) && !lines[i + 2].match(componentRegex) && !lines[i + 2].match(courseRegex)) {
-                            instructor = lines[i + 2];
-                        }
-
-                        i = j;
-                        break;
-                    }
-                }
-
-                if (startDateStr && endDateStr) {
-                    const parsedDays = parseDays(daysStr);
-                    if (parsedDays.length > 0) {
-                        events.push({
-                            courseCode: currentCourseCode,
-                            courseName: currentCourseName,
-                            component: currentComponent || 'Class',
-                            days: parsedDays,
-                            daysRaw: daysStr,
-                            startTime: startTimeStr,
-                            endTime: endTimeStr,
-                            room: room,
-                            instructor: instructor,
-                            startDate: startDateStr,
-                            endDate: endDateStr
-                        });
-                    }
-                }
-                i++;
-                continue;
-            }
-
-            // 2. Component Tag Check
-            const componentMatch = line.match(componentRegex);
-            if (componentMatch) {
-                currentComponent = componentMatch[1].toUpperCase();
-                i++;
-                continue;
-            }
-
-            // 3. Course Header Check
-            const courseMatch = line.match(courseRegex);
-            if (courseMatch) {
-                currentCourseCode = courseMatch[1].trim();
-                const rawTitle = courseMatch[2] ? courseMatch[2] : currentCourseCode;
-                currentCourseName = rawTitle.replace(/Status.*$/i, '').trim();
-                currentComponent = null;
-                i++;
-                continue;
-            }
-
-            i++;
-        }
-
-        return events;
-    }
-
-    function parseDays(daysStr) {
-        const days = [];
-        const cleanStr = daysStr.replace(/[^A-Za-z]/g, '');
-
-        if (/\bMon\b/i.test(daysStr) || /Mo/i.test(daysStr) || /M(?!o)/.test(cleanStr)) {
-            days.push('MO');
-        }
-        if (/\bTue\b/i.test(daysStr) || /Tu/i.test(daysStr) || (/T(?!h)/.test(cleanStr) && (!/Th/i.test(cleanStr) || cleanStr.replace(/Th/gi, '').includes('T')))) {
-            days.push('TU');
-        }
-        if (/\bWed\b/i.test(daysStr) || /W/i.test(cleanStr)) {
-            days.push('WE');
-        }
-        if (/\bThu\b/i.test(daysStr) || /Th/i.test(cleanStr)) {
-            days.push('TH');
-        }
-        if (/\bFri\b/i.test(daysStr) || /F/i.test(cleanStr)) {
-            days.push('FR');
-        }
-        if (/\bSat\b/i.test(daysStr) || /Sa/i.test(cleanStr)) {
-            days.push('SA');
-        }
-        if (/\bSun\b/i.test(daysStr) || /Su/i.test(cleanStr)) {
-            days.push('SU');
-        }
-
-        return [...new Set(days)];
-    }
-
-    function generateICS(events) {
-        const ics = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'PRODID:-//University of Waterloo//Quest Schedule Exporter//EN',
-            'CALSCALE:GREGORIAN',
-            'METHOD:PUBLISH',
-            'X-WR-CALNAME:Quest Class Schedule',
-            'X-WR-TIMEZONE:America/Toronto',
-            'BEGIN:VTIMEZONE',
-            'TZID:America/Toronto',
-            'X-LIC-LOCATION:America/Toronto',
-            'BEGIN:DAYLIGHT',
-            'TZOFFSETFROM:-0500',
-            'TZOFFSETTO:-0400',
-            'TZNAME:EDT',
-            'DTSTART:19700308T020000',
-            'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
-            'END:DAYLIGHT',
-            'BEGIN:STANDARD',
-            'TZOFFSETFROM:-0400',
-            'TZOFFSETTO:-0500',
-            'TZNAME:EST',
-            'DTSTART:19701101T020000',
-            'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
-            'END:STANDARD',
-            'END:VTIMEZONE'
-        ];
-
-        events.forEach((event, idx) => {
-            const firstDate = getFirstClassDate(event.startDate, event.days);
-            const startDateTime = formatICSDateTime(firstDate, event.startTime);
-            const endDateTime = formatICSDateTime(firstDate, event.endTime);
-            const untilDate = formatICSDate(event.endDate) + 'T235959Z';
-
-            const randomId = Math.random().toString(36).substring(2, 8);
-            const uid = `${event.courseCode.replace(/\s+/g, '')}-${event.component}-${startDateTime}-${idx}-${randomId}@quest.to.calendar`;
-            const dtStamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-
-            ics.push('BEGIN:VEVENT');
-            ics.push(`UID:${uid}`);
-            ics.push(`DTSTAMP:${dtStamp}`);
-            ics.push(`SUMMARY:${event.courseCode} ${event.component}`);
-            ics.push(`LOCATION:${event.room}`);
-            ics.push(`DESCRIPTION:${event.courseName}\\nInstructor: ${event.instructor}\\nComponent: ${event.component}`);
-            ics.push(`DTSTART;TZID=America/Toronto:${startDateTime}`);
-            ics.push(`DTEND;TZID=America/Toronto:${endDateTime}`);
-
-            const byDay = event.days.join(',');
-            ics.push(`RRULE:FREQ=WEEKLY;BYDAY=${byDay};UNTIL=${untilDate}`);
-            ics.push('END:VEVENT');
-        });
-
-        ics.push('END:VCALENDAR');
-        return ics.join('\r\n');
-    }
-
-    function parseDate(dateStr) {
-        const parts = dateStr.split(/[\/\-]/);
-        if (parts[0].length === 4) {
-            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-        }
-        return new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
-    }
-
-    const dayMap = {
-        'SU': 0, 'MO': 1, 'TU': 2, 'WE': 3, 'TH': 4, 'FR': 5, 'SA': 6
-    };
-
-    function getFirstClassDate(startDateStr, daysArr) {
-        const baseDate = parseDate(startDateStr);
-        let earliestDate = null;
-
-        for (const day of daysArr) {
-            const date = new Date(baseDate.getTime());
-            const target = dayMap[day];
-            const current = date.getDay();
-            const daysToAdd = (target - current + 7) % 7;
-            date.setDate(date.getDate() + daysToAdd);
-
-            if (!earliestDate || date < earliestDate) {
-                earliestDate = date;
-            }
-        }
-
-        return earliestDate;
-    }
-
-    function formatICSDateTime(date, timeStr) {
-        const match = timeStr.match(/(\d{1,2}):(\d{2})([AP]M)/i);
-        if (!match) return '20260909T000000';
-        
-        let hours = parseInt(match[1], 10);
-        const minutes = match[2];
-        const ampm = match[3].toUpperCase();
-
-        if (ampm === 'PM' && hours < 12) hours += 12;
-        if (ampm === 'AM' && hours === 12) hours = 0;
-
-        const pad = (n) => n.toString().padStart(2, '0');
-
-        const yyyy = date.getFullYear();
-        const mm = pad(date.getMonth() + 1);
-        const dd = pad(date.getDate());
-        const hh = pad(hours);
-
-        return `${yyyy}${mm}${dd}T${hh}${minutes}00`;
-    }
-
-    function formatICSDate(dateStr) {
-        const parts = dateStr.split(/[\/\-]/);
-        const pad = (n) => n.toString().padStart(2, '0');
-        if (parts[0].length === 4) {
-            return `${parts[0]}${pad(parts[1])}${pad(parts[2])}`;
-        }
-        return `${parts[2]}${pad(parts[0])}${pad(parts[1])}`;
-    }
-
-    function downloadICS(content, filename) {
-        const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-        }, 150);
-    }
-    </script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
