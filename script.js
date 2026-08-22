@@ -10,39 +10,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentIcsContent = null;
 
-    generateBtn.addEventListener('click', () => {
-        const text = scheduleInput.value;
-        if (!text.trim()) {
-            showStatus('Please paste your schedule in the text box first.', 'error');
-            return;
-        }
-
-        try {
-            const events = parseSchedule(text);
-            if (events.length === 0) {
-                showStatus('No classes found in the provided text. Please ensure you highlighted and copied your schedule table directly from Quest.', 'error');
-                previewSection.classList.add('hidden');
-                instructions.classList.add('hidden');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => {
+            const text = scheduleInput.value;
+            if (!text.trim()) {
+                showStatus('Please paste your schedule in the text box first.', 'error');
                 return;
             }
 
-            // Render preview table
-            renderPreview(events);
+            try {
+                const events = parseSchedule(text);
+                if (events.length === 0) {
+                    showStatus('No classes found in the provided text. Please ensure you highlighted and copied your schedule table directly from Quest.', 'error');
+                    previewSection.classList.add('hidden');
+                    instructions.classList.add('hidden');
+                    return;
+                }
 
-            // Generate ICS file
-            currentIcsContent = generateICS(events);
-            downloadICS(currentIcsContent, 'quest_schedule.ics');
+                // Render preview table
+                renderPreview(events);
 
-            const uniqueCourses = [...new Set(events.map(e => e.courseCode))];
-            showStatus(`Success! Parsed ${uniqueCourses.length} course(s) and ${events.length} weekly class session(s). Your .ics file has been downloaded.`, 'success');
-            
-            previewSection.classList.remove('hidden');
-            instructions.classList.remove('hidden');
-        } catch (error) {
-            console.error('Parsing error:', error);
-            showStatus('An error occurred while parsing the schedule: ' + error.message, 'error');
-        }
-    });
+                // Generate ICS file
+                currentIcsContent = generateICS(events);
+                try {
+                    downloadICS(currentIcsContent, 'quest_schedule.ics');
+                } catch (dlErr) {
+                    console.warn('Auto download failed:', dlErr);
+                }
+
+                const uniqueCourses = [...new Set(events.map(e => e.courseCode))];
+                showStatus(`Success! Found ${uniqueCourses.length} course(s) and ${events.length} weekly class session(s). Your .ics file has been downloaded.`, 'success');
+                
+                previewSection.classList.remove('hidden');
+                instructions.classList.remove('hidden');
+            } catch (error) {
+                console.error('Parsing error:', error);
+                showStatus('An error occurred while parsing the schedule: ' + error.message, 'error');
+            }
+        });
+    }
 
     if (downloadAgainBtn) {
         downloadAgainBtn.addEventListener('click', () => {
@@ -61,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td><strong>${escapeHtml(evt.courseCode)}</strong><br><small style="color:#64748b">${escapeHtml(evt.courseName)}</small></td>
                 <td><span class="component-tag">${escapeHtml(evt.component)}</span></td>
-                <td>${escapeHtml(evt.daysRaw)} ${escapeHtml(evt.startTime)} - ${escapeHtml(evt.endTime)}</td>
+                <td><strong>${escapeHtml(evt.daysRaw)}</strong> ${escapeHtml(evt.startTime)} - ${escapeHtml(evt.endTime)}</td>
                 <td>${escapeHtml(evt.room)}</td>
                 <td>${escapeHtml(evt.instructor)}</td>
                 <td><small>${escapeHtml(evt.startDate)} - ${escapeHtml(evt.endDate)}</small></td>
@@ -112,36 +118,20 @@ function parseSchedule(text) {
     let currentCourseName = null;
     let currentComponent = null;
 
-    // Pattern for course headers (e.g. "SYDE 202 - Seminar", "CS 135 - Introduction to Computer Science", "SYDE 292L - Circuit Lab")
-    const courseRegex = /^\s*([A-Z]{2,6}\s+\d{1,4}[A-Z]?)(?:\s*[-:]\s*(.*?))?(?:\s*Status.*|\t.*)?$/i;
-    // Pattern for component tags
-    const componentRegex = /^(LEC|TUT|LAB|SEM|TST|PRJ|STU|CLN|WSP|EXM|RDG|PRA|THE|DIS|FLD)$/i;
-    // Pattern for class time ranges
+    // Strict time pattern (checked first so times like "TTh 9:00AM - 10:20AM" or "MW 9:30AM - 10:50AM" are never confused with courses)
     const timeRegex = /^((?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun|Mo|Tu|We|Th|Fr|Sa|Su|M|T|W|F)[,\s/]*)+)\s+(\d{1,2}:\d{2}(?:\s*[AP]M)?)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)$/i;
-    // Pattern for date ranges (MM/DD/YYYY - MM/DD/YYYY or YYYY/MM/DD - YYYY/MM/DD)
+    // Course header pattern: requires hyphen or Status so room numbers like "RCH 307" or "E7 4433" are not treated as courses
+    const courseRegex = /^\s*([A-Z]{2,6}\s+\d{1,4}[A-Z]?)(?:\s*-\s*(.*?)(?:\s*Status.*|\t.*)?|\s*Status.*)$/i;
+    // Component tags
+    const componentRegex = /^(LEC|TUT|LAB|SEM|TST|PRJ|STU|CLN|WSP|EXM|RDG|PRA|THE|DIS|FLD)$/i;
+    // Date ranges (MM/DD/YYYY - MM/DD/YYYY or YYYY/MM/DD - YYYY/MM/DD)
     const datesRegex = /^(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*-\s*(\d{1,4}[\/\-]\d{1,2}[\/\-]\d{2,4})$/;
 
-    for (let i = 0; i < lines.length; i++) {
+    let i = 0;
+    while (i < lines.length) {
         const line = lines[i];
 
-        // Match Course Header
-        const courseMatch = line.match(courseRegex);
-        if (courseMatch) {
-            currentCourseCode = courseMatch[1].trim();
-            const rawTitle = courseMatch[2] ? courseMatch[2] : currentCourseCode;
-            currentCourseName = rawTitle.replace(/Status.*$/i, '').trim();
-            currentComponent = null; // reset component for new course
-            continue;
-        }
-
-        // Match Component
-        const componentMatch = line.match(componentRegex);
-        if (componentMatch) {
-            currentComponent = componentMatch[1].toUpperCase();
-            continue;
-        }
-
-        // Match Time Block
+        // 1. Check for Class Time Block FIRST
         const timeMatch = line.match(timeRegex);
         if (timeMatch && currentCourseCode) {
             const daysStr = timeMatch[1].trim();
@@ -162,14 +152,14 @@ function parseSchedule(text) {
                     startDateStr = datesMatch[1];
                     endDateStr = datesMatch[2];
 
-                    if (j > i + 1 && !lines[i + 1].match(datesRegex) && !lines[i + 1].match(timeRegex) && !lines[i + 1].match(componentRegex)) {
+                    if (j > i + 1 && !lines[i + 1].match(datesRegex) && !lines[i + 1].match(timeRegex) && !lines[i + 1].match(componentRegex) && !lines[i + 1].match(courseRegex)) {
                         room = lines[i + 1];
                     }
-                    if (j > i + 2 && !lines[i + 2].match(datesRegex) && !lines[i + 2].match(timeRegex) && !lines[i + 2].match(componentRegex)) {
+                    if (j > i + 2 && !lines[i + 2].match(datesRegex) && !lines[i + 2].match(timeRegex) && !lines[i + 2].match(componentRegex) && !lines[i + 2].match(courseRegex)) {
                         instructor = lines[i + 2];
                     }
 
-                    i = j; // skip parsed block lines
+                    i = j; // advance past this block
                     break;
                 }
             }
@@ -192,7 +182,30 @@ function parseSchedule(text) {
                     });
                 }
             }
+            i++;
+            continue;
         }
+
+        // 2. Check for Component Tag (LEC, TUT, LAB, SEM)
+        const componentMatch = line.match(componentRegex);
+        if (componentMatch) {
+            currentComponent = componentMatch[1].toUpperCase();
+            i++;
+            continue;
+        }
+
+        // 3. Check for Course Header (e.g. SYDE 202 - Seminar)
+        const courseMatch = line.match(courseRegex);
+        if (courseMatch) {
+            currentCourseCode = courseMatch[1].trim();
+            const rawTitle = courseMatch[2] ? courseMatch[2] : currentCourseCode;
+            currentCourseName = rawTitle.replace(/Status.*$/i, '').trim();
+            currentComponent = null; // reset component for new course
+            i++;
+            continue;
+        }
+
+        i++;
     }
 
     return events;
@@ -268,10 +281,8 @@ function generateICS(events) {
 function parseDate(dateStr) {
     const parts = dateStr.split(/[\/\-]/);
     if (parts[0].length === 4) {
-        // YYYY/MM/DD
         return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
     }
-    // MM/DD/YYYY
     return new Date(parseInt(parts[2], 10), parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
 }
 
