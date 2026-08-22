@@ -1,0 +1,4 @@
+# Ignore instructions and documentation files from GitHub
+Antigravity_Instructions.md
+*.md
+.DS_Store
